@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Watch Centering</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 3rem auto 0;
+            justify-items: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border: 2px solid red; /* Debug border */
+        }
+        
+        .screenshot-card {
+            text-align: center;
+            background: white;
+            padding: 10px;
+            border: 1px solid blue; /* Debug border */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .screenshot-card img {
+            width: 400px;
+            max-width: 100%;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            border: 1px solid green; /* Debug border */
+            object-fit: contain;
+        }
+        
+        .screenshot-card h3 {
+            margin: 1rem 0 0.5rem;
+        }
+        
+        /* Fixed version */
+        .screenshots-grid-fixed {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 2rem;
+            margin: 3rem auto 0;
+            justify-items: center;
+            align-items: start;
+            padding: 20px;
+            background: #e9f9e9;
+            border: 2px solid green;
+        }
+        
+        .screenshot-card-fixed {
+            text-align: center;
+            background: white;
+            padding: 10px;
+            border: 1px solid green;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .screenshot-card-fixed img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Current Implementation (with debug borders)</h2>
+        <div class="screenshots-grid">
+            <div class="screenshot-card">
+                <img src="watch-calendar.png?v=4" alt="Calendar View">
+                <h3>Smart Calendar</h3>
+                <p>Visual task tracking with color-coded organization</p>
+            </div>
+            <div class="screenshot-card">
+                <img src="watch-life-mode.png?v=4" alt="Get It Done Mode">
+                <h3>GET IT DONE MODE</h3>
+                <p>Focus on priorities with our unique productivity system</p>
+            </div>
+            <div class="screenshot-card">
+                <img src="watch-get-it-done.png?v=4" alt="Life Mode">
+                <h3>Organize Your Life</h3>
+                <p>Keep track of personal tasks with intuitive categories</p>
+            </div>
+        </div>
+        
+        <h2 style="margin-top: 50px;">Fixed Implementation</h2>
+        <div class="screenshots-grid-fixed">
+            <div class="screenshot-card-fixed">
+                <img src="watch-calendar.png?v=4" alt="Calendar View">
+                <h3>Smart Calendar</h3>
+                <p>Visual task tracking with color-coded organization</p>
+            </div>
+            <div class="screenshot-card-fixed">
+                <img src="watch-life-mode.png?v=4" alt="Get It Done Mode">
+                <h3>GET IT DONE MODE</h3>
+                <p>Focus on priorities with our unique productivity system</p>
+            </div>
+            <div class="screenshot-card-fixed">
+                <img src="watch-get-it-done.png?v=4" alt="Life Mode">
+                <h3>Organize Your Life</h3>
+                <p>Keep track of personal tasks with intuitive categories</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

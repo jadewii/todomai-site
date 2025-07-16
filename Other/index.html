@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todomai - Revolutionary Voice-Powered watchOS Todo App</title>
+    <meta name="description" content="Transform your productivity with Todomai's voice-controlled task management on Apple Watch. Smart voice recognition, focus timers, and adaptive modes for every moment.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Todomai Brand Colors - From WatchOS App */
+            --color-life: #3B82F6;
+            --color-work: #10B981;
+            --color-school: #c8a5f2;
+            --color-priority: #FF0000;
+            --color-random: #fc9f58;
+            --color-overdue: #FFB3B3;
+            --color-yellow: #dbd524;
+            --color-done: #22C55E;
+            
+            /* Light Mode Colors */
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F8F8F8;
+            --bg-tertiary: #F0F0F0;
+            --text-primary: #000000;
+            --text-secondary: #666666;
+            --border-width: 6px;
+            --border-color: #000000;
+            
+            /* No gradients - solid colors only */
+        }
+
+        /* Dark mode colors */
+        body.dark-mode {
+            --bg-primary: #0F0F0F;
+            --bg-secondary: #1A1A1A;
+            --bg-tertiary: #252525;
+            --text-primary: #F3F4F6;
+            --text-secondary: #9CA3AF;
+            --border-color: #374151;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .navbar {
+            background: rgba(15, 15, 15, 0.95);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .cta-button {
+            background: var(--color-life);
+            color: white !important;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            border: 3px solid var(--border-color);
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-secondary);
+        }
+
+        .light-icon { display: block; }
+        .dark-icon { display: none; }
+        
+        body.dark-mode .light-icon { display: none; }
+        body.dark-mode .dark-icon { display: block; }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--bg-tertiary);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--color-life);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .gradient-text {
+            color: var(--text-primary);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .primary-button {
+            display: inline-block;
+            background: var(--color-life);
+            color: white;
+            padding: 1rem 2.5rem;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            transition: all 0.2s ease;
+            border: 6px solid #1e40af; /* Dark blue */
+            border-radius: 0;
+            position: relative;
+        }
+
+        .primary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 rgba(30, 64, 175, 0.2);
+        }
+
+        .secondary-button {
+            display: inline-block;
+            background: var(--color-yellow);
+            color: white;
+            padding: 1rem 2.5rem;
+            text-decoration: none;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            transition: all 0.2s ease;
+            border: 6px solid #a16207; /* Dark yellow/amber */
+            border-radius: 0;
+        }
+
+        .secondary-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 rgba(161, 98, 7, 0.2);
+        }
+
+        .beta-notice {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Todomai Mascot */
+        .hero-visual {
+            position: relative;
+        }
+
+        .mascot-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        .mascot-glow {
+            display: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .todomai-mascot {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            z-index: 2;
+            animation: float-mascot 4s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes float-mascot {
+            0%, 100% { transform: translateY(0px) rotate(-1deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
+        }
+
+        /* Todomai Mascot - APP ICON STYLE */
+        .mascot-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 45px; /* App icon style rounded corners */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: block;
+        }
+
+        /* Alternative frame-by-frame animation */
+        @keyframes sprite-play {
+            0% { background-position: 0 0; }
+            4.17% { background-position: -128px 0; }
+            8.33% { background-position: -256px 0; }
+            12.5% { background-position: -384px 0; }
+            16.67% { background-position: 0 -128px; }
+            20.83% { background-position: -128px -128px; }
+            25% { background-position: -256px -128px; }
+            29.17% { background-position: -384px -128px; }
+            33.33% { background-position: 0 -256px; }
+            37.5% { background-position: -128px -256px; }
+            41.67% { background-position: -256px -256px; }
+            45.83% { background-position: -384px -256px; }
+            50% { background-position: 0 -384px; }
+            54.17% { background-position: -128px -384px; }
+            58.33% { background-position: -256px -384px; }
+            62.5% { background-position: -384px -384px; }
+            66.67% { background-position: 0 -512px; }
+            70.83% { background-position: -128px -512px; }
+            75% { background-position: -256px -512px; }
+            79.17% { background-position: -384px -512px; }
+            83.33% { background-position: 0 -640px; }
+            87.5% { background-position: -128px -640px; }
+            91.67% { background-position: -256px -640px; }
+            95.83% { background-position: -384px -640px; }
+            100% { background-position: 0 0; }
+        }
+
+        .todomai-mascot:hover .mascot-image {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .floating-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .floating-task {
+            position: absolute;
+            padding: 0.75rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            animation: float 6s ease-in-out infinite;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .task-life {
+            background: var(--color-life);
+            color: white;
+            top: 20%;
+            left: -20%;
+            animation-delay: 0s;
+        }
+
+        .task-work {
+            background: var(--color-work);
+            color: white;
+            top: 10%;
+            right: -10%;
+            animation-delay: 1s;
+        }
+
+        .task-school {
+            background: var(--color-school);
+            color: white;
+            top: 60%;
+            right: -15%;
+            animation-delay: 2s;
+        }
+
+        .task-done {
+            background: #ff7b08;
+            color: white;
+            bottom: 5%;
+            left: 15%;
+            animation-delay: 3s;
+        }
+
+        /* App Screenshots Section */
+        .app-screenshots {
+            padding: 60px 0;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .app-screenshots .container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-screenshots .section-header h2,
+        .app-screenshots .section-header p {
+            color: #000000;
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 2rem;
+            margin: 3rem auto 0;
+            justify-items: center;
+            align-items: start;
+            max-width: 1200px;
+        }
+
+        .screenshot-card {
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .screenshot-card img {
+            width: 100%;
+            max-width: 350px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            transition: transform 0.3s ease;
+            object-fit: contain;
+        }
+
+        .screenshot-card:hover img {
+            transform: scale(1.05) translateY(-5px);
+        }
+
+        /* Watch screen mockups */
+        .watch-screen {
+            width: 200px;
+            height: 242px;
+            margin: 0 auto;
+            border: 3px solid white;
+            border-radius: 40px;
+            overflow: hidden;
+            background: #000;
+            transition: transform 0.3s ease;
+        }
+
+        .screenshot-card:hover .watch-screen {
+            transform: scale(1.05) translateY(-5px);
+        }
+
+        .watch-content {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .watch-button {
+            width: 100%;
+            padding: 10px;
+            margin: 4px 0;
+            text-align: center;
+            font-weight: 900;
+            font-size: 13px;
+            color: white;
+            border: 6px solid black;
+            outline: 3px solid white;
+            outline-offset: -9px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .mic-icon {
+            position: absolute;
+            bottom: 20px;
+            right: 50%;
+            transform: translateX(50%);
+            width: 52px;
+            height: 52px;
+            background: black;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .mic-icon.large {
+            width: 81px;
+            height: 81px;
+            font-size: 36px;
+            position: relative;
+            bottom: auto;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            font-size: 10px;
+            text-align: center;
+        }
+
+        .calendar-day {
+            font-weight: bold;
+            color: #666;
+            padding: 2px;
+        }
+
+        .calendar-date {
+            padding: 4px;
+            background: #f0f0f0;
+        }
+
+        .calendar-date.today {
+            background: #c8a5f2;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-date.selected {
+            background: black;
+            color: white;
+            font-weight: bold;
+        }
+
+        .calendar-date.small {
+            font-size: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .add-button {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: #10B981;
+            position: absolute;
+            bottom: 30px;
+        }
+
+        .screenshot-card h3 {
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #000000;
+            letter-spacing: 0.05em;
+        }
+
+        .screenshot-card p {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .screenshots-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+            
+            .screenshot-card img {
+                width: 140px;
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: var(--bg-secondary);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border: 6px solid var(--border-color);
+            transition: all 0.3s ease;
+            border-radius: 0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .voice-icon {
+            background: linear-gradient(135deg, var(--color-life), var(--color-school));
+        }
+
+        .modes-icon {
+            background: linear-gradient(135deg, var(--color-work), var(--color-done));
+        }
+
+        .timer-icon {
+            background: linear-gradient(135deg, var(--color-school), var(--color-life));
+        }
+
+        .roulette-icon {
+            background: linear-gradient(135deg, var(--color-done), var(--color-work));
+        }
+
+        .calendar-icon {
+            background: linear-gradient(135deg, var(--color-life), var(--color-work));
+        }
+
+        .sync-icon {
+            background: linear-gradient(135deg, var(--color-school), var(--color-done));
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .icon {
+            width: 48px;
+            height: 48px;
+            fill: currentColor;
+        }
+
+        /* Voice demo */
+        .voice-wave {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+            margin-bottom: 0.5rem;
+        }
+
+        .voice-wave span {
+            width: 4px;
+            background: var(--color-life);
+            border-radius: 2px;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+
+        .voice-wave span:nth-child(2) { animation-delay: 0.1s; }
+        .voice-wave span:nth-child(3) { animation-delay: 0.2s; }
+        .voice-wave span:nth-child(4) { animation-delay: 0.3s; }
+        .voice-wave span:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 100% { height: 20px; }
+            50% { height: 40px; }
+        }
+
+        .voice-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            padding: 40px 0;
+            background: var(--bg-primary);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 2rem auto 0;
+        }
+
+        .pricing-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border: 6px solid var(--border-color);
+            position: relative;
+            transition: all 0.3s ease;
+            min-height: 450px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .pricing-card.featured {
+            transform: scale(1);
+            border-color: var(--color-life);
+        }
+
+        .pricing-card.coming-soon {
+            border-color: var(--color-school);
+            opacity: 0.9;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .pricing-card.featured:hover {
+            transform: scale(1.05) translateY(-5px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-life);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 3px solid var(--border-color);
+        }
+
+        .plan-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--border-color);
+        }
+
+        .plan-header h3 {
+            font-size: 1.25rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .price {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0.25rem;
+        }
+
+        .currency {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .amount {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--text-primary);
+        }
+
+        .period {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .plan-features h4 {
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .plan-features ul {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-features ul li {
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .plan-button {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 0;
+        }
+
+        .basic-button {
+            background: var(--color-yellow);
+            color: white;
+            border: 6px solid #a16207;
+        }
+
+        .pro-button {
+            background: var(--color-life);
+            color: white;
+            border: 6px solid #1e40af;
+        }
+
+        .plan-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        /* Beta Section */
+        .beta-section {
+            padding: 80px 0;
+            background: var(--bg-secondary);
+        }
+
+        .beta-content {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .beta-content h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .beta-content p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .beta-features {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+        }
+
+        .waitlist-form {
+            display: flex;
+            max-width: 400px;
+            margin: 0 auto;
+            gap: 1rem;
+        }
+
+        .waitlist-input {
+            flex: 1;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+        }
+
+        .waitlist-button {
+            background: var(--color-life);
+            color: white;
+            padding: 1rem 2rem;
+            border: 6px solid #000000;
+            outline: 3px solid #FFFFFF;
+            outline-offset: -9px;
+            border-radius: 0;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .waitlist-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-primary);
+            padding: 60px 0 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 3fr;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-secondary);
+            margin-top: 1rem;
+        }
+
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .footer-column h4 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--text-primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            
+            .hero-visual {
+                order: -1;
+            }
+            
+            .hero-cta {
+                flex-direction: column;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .beta-features {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .waitlist-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <div class="logo-icon">T</div>
+                    <span>Todomai</span>
+                    <img src="watch-icon.png" alt="Apple Watch" width="24" height="30" style="margin-left: 10px; vertical-align: middle;">
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#beta">Join Beta</a></li>
+                    <li>
+                        <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+                            <span class="light-icon">🌞</span>
+                            <span class="dark-icon">🌙</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="badge">COMING TO WATCHOS</div>
+                    <h1 class="hero-title">
+                        <span class="gradient-text">Speak it.</span><br>
+                        <span class="gradient-text">Done.</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Voice-powered task assistant that lives on your wrist. 
+                        Speak your thoughts and let Todomai handle the rest with 
+                        smart date parsing, calendar integration, and adaptive modes 
+                        for everyday life.
+                    </p>
+                    <div class="hero-cta">
+                        <a href="#beta" class="primary-button">Join Beta Waitlist</a>
+                        <a href="#features" class="secondary-button">Learn More</a>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="mascot-container">
+                        <div class="mascot-glow"></div>
+                        <div class="todomai-mascot" id="todomai-mascot">
+                            <img src="40289506-d8c5-4bd0-9a73-bcad76ead050.png" alt="Todomai Mascot" class="mascot-image" id="mascot-image">
+                        </div>
+                        <div class="floating-elements">
+                            <div class="floating-task task-life">Plan vacation</div>
+                            <div class="floating-task task-work">Review Q4 report</div>
+                            <div class="floating-task task-school">Study chemistry</div>
+                            <div class="floating-task task-done">Workout complete!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- App Screenshots Section -->
+    <section class="app-screenshots">
+        <div class="container">
+            <div class="section-header">
+                <h2>Get organized</h2>
+                <p>Life gets messy, Todomai is here to help you get on track in every area</p>
+            </div>
+            
+            <div class="screenshots-grid">
+                <div class="screenshot-card">
+                    <img src="watch-calendar.png?v=4" alt="Calendar View">
+                    <h3>Smart Calendar</h3>
+                    <p>Visual task tracking with color-coded organization</p>
+                </div>
+                <div class="screenshot-card">
+                    <img src="watch-life-mode.png?v=4" alt="Get It Done Mode">
+                    <h3>GET IT DONE MODE</h3>
+                    <p>Focus on priorities with our unique productivity system</p>
+                </div>
+                <div class="screenshot-card">
+                    <img src="watch-get-it-done.png?v=4" alt="Life Mode">
+                    <h3>Organize Your Life</h3>
+                    <p>Keep track of personal tasks with intuitive categories</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Features that will revolutionize your day</h2>
+                <p>Experience the future of task management with cutting-edge voice control and intelligent automation</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon voice-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2C10.3431 2 9 3.34315 9 5V12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12V5C15 3.34315 13.6569 2 12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19 10V12C19 15.866 15.866 19 12 19M5 10V12C5 15.866 8.13401 19 12 19M12 19V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Smart Voice Recognition</h3>
+                    <p>Just speak naturally. Todomai understands dates, times, and context to create perfect tasks and calendar events instantly.</p>
+                    <div class="feature-demo">
+                        <div class="voice-wave">
+                            <span></span><span></span><span></span><span></span><span></span>
+                        </div>
+                        <div class="voice-text">"Meeting with Sarah tomorrow at 3pm"</div>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon modes-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="3" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <rect x="14" y="3" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <rect x="3" y="14" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <rect x="14" y="14" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Adaptive Modes</h3>
+                    <p>Switch seamlessly between LIFE, WORK, SCHOOL, and GET IT DONE modes. Each mode optimizes your experience for the moment.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon timer-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 7V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Focus Timer System</h3>
+                    <p>Built-in timers for 5, 15, 30, or 60 minutes help you stay focused and productive with gentle haptic reminders.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon roulette-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L14.09 8.26L20.6 8.35L15.45 12.11L17.35 18.44L12 14.77L6.65 18.44L8.55 12.11L3.4 8.35L9.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Decision Roulette</h3>
+                    <p>Can't decide what to tackle next? Let our fun roulette animation randomly select a task and eliminate choice paralysis.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon calendar-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Smart Calendar</h3>
+                    <p>Color-coded calendar with month-specific themes and overdue tracking keeps you on top of everything at a glance.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon sync-icon">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 12C4 7.58172 7.58172 4 12 4C14.7654 4 17.1837 5.50644 18.4648 7.71153L20 10M20 12C20 16.4183 16.4183 20 12 20C9.23456 20 6.81632 18.4936 5.53518 16.2885L4 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3>Seamless Sync</h3>
+                    <p>All your tasks, timers, and progress sync instantly across your Apple devices through iCloud.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Simple, transparent pricing</h2>
+                <p>Choose the plan that fits your productivity needs</p>
+            </div>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card basic">
+                    <div class="plan-header">
+                        <h3>BASIC</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">2.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <div class="plan-features">
+                        <h4>LIFE MODE</h4>
+                        <ul>
+                            <li>✓ Today tasks</li>
+                            <li>✓ Later tasks</li>
+                            <li>✓ Scheduled tasks</li>
+                            <li>✓ Voice input</li>
+                        </ul>
+                    </div>
+                    <a href="#beta" class="plan-button basic-button">Get Started</a>
+                </div>
+                
+                <div class="pricing-card pro featured">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="plan-header">
+                        <h3>PRO</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">5.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <div class="plan-features">
+                        <h4>ALL MODES UNLOCKED</h4>
+                        <ul>
+                            <li>✓ Everything in Basic</li>
+                            <li>✓ All 4 modes</li>
+                            <li>✓ Calendar & Roulette</li>
+                            <li>✓ Focus timers</li>
+                            <li>✓ Analytics</li>
+                        </ul>
+                    </div>
+                    <a href="#beta" class="plan-button pro-button">Go Pro</a>
+                </div>
+                
+                <div class="pricing-card family coming-soon">
+                    <div class="popular-badge" style="background: var(--color-school);">COMING SOON</div>
+                    <div class="plan-header">
+                        <h3>FAMILY</h3>
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">9.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <div class="plan-features">
+                        <h4>ORGANIZE THE CREW</h4>
+                        <ul>
+                            <li>✓ Everything in Pro</li>
+                            <li>✓ Family task sharing</li>
+                            <li>✓ Shared lists</li>
+                            <li>✓ Routines & timers</li>
+                            <li>✓ Up to 6 members</li>
+                        </ul>
+                    </div>
+                    <a href="#beta" class="plan-button family-button" style="background: var(--color-school); opacity: 0.6; cursor: not-allowed;">Coming Soon</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Beta Section -->
+    <section id="beta" class="beta-section">
+        <div class="container">
+            <div class="beta-content">
+                <h2>Voice-first productivity tools</h2>
+                <p>A simpler, smarter way to stay on top of life - without your phone.</p>
+                
+                <div class="beta-features">
+                    <span>🎯 Early access</span>
+                    <span>💬 Direct feedback to developers</span>
+                    <span>🆓 Free beta period</span>
+                </div>
+
+                <form class="waitlist-form">
+                    <input type="email" class="waitlist-input" placeholder="Enter your email address" required>
+                    <button type="submit" class="waitlist-button">Join Waitlist</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <div class="logo-icon">T</div>
+                        <span>Todomai</span>
+                    </div>
+                    <p>Revolutionary voice-powered productivity for Apple Watch</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Product</h4>
+                        <ul>
+                            <li><a href="#">Features</a></li>
+                            <li><a href="#">Beta Program</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Privacy</a></li>
+                            <li><a href="#">Terms</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Todomai. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        // Load dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            
+            if (currentScroll > 100) {
+                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
+                navbar.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+                navbar.style.boxShadow = 'none';
+            }
+        });
+
+        // Dynamic voice wave animation
+        const voiceWave = document.querySelector('.voice-wave');
+        if (voiceWave) {
+            setInterval(() => {
+                const spans = voiceWave.querySelectorAll('span');
+                spans.forEach(span => {
+                    const height = Math.random() * 30 + 10;
+                    span.style.height = `${height}px`;
+                });
+            }, 200);
+        }
+
+        // Typing effect for voice demo
+        const voiceExamples = [
+            "Meeting with Sarah tomorrow at 3pm",
+            "Buy groceries on the way home", 
+            "Finish project report by Friday",
+            "Call mom on Sunday at 2pm"
+        ];
+
+        let currentExample = 0;
+        const voiceTextElement = document.querySelector('.voice-text');
+
+        if (voiceTextElement) {
+            setInterval(() => {
+                voiceTextElement.style.opacity = '0';
+                setTimeout(() => {
+                    voiceTextElement.textContent = `"${voiceExamples[currentExample]}"`;
+                    voiceTextElement.style.opacity = '1';
+                    currentExample = (currentExample + 1) % voiceExamples.length;
+                }, 300);
+            }, 3000);
+        }
+
+        // Simple mascot hover effect
+        const mascotContainer = document.getElementById('todomai-mascot');
+        
+        // Remove click cursor since there's no interaction
+        if (mascotContainer) {
+            mascotContainer.style.cursor = 'default';
+        }
+
+        // Waitlist form
+        const waitlistForm = document.querySelector('.waitlist-form');
+        if (waitlistForm) {
+            waitlistForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const button = this.querySelector('.waitlist-button');
+                button.textContent = 'Added to Waitlist! 🎉';
+                button.style.background = 'var(--color-work)';
+                setTimeout(() => {
+                    button.textContent = 'Join Waitlist';
+                    button.style.background = 'var(--gradient-primary)';
+                }, 3000);
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("🦖 Todomai landing page loaded!");
+            console.log("✅ Mascot image is now properly referenced: 40289506-d8c5-4bd0-9a73-bcad76ead050.png");
+        });
+    </script>
+</body>
+</html>
